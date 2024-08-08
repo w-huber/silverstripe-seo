@@ -3,8 +3,8 @@ Name: silverstripe-seo
 ---
 Page:
   extensions:
-    - QuinnInteractive\Seo\Extensions\PageHealthExtension
-    - QuinnInteractive\Seo\Extensions\PageSeoExtension
+    page_health: QuinnInteractive\Seo\Extensions\PageHealthExtension
+    page_seo: QuinnInteractive\Seo\Extensions\PageSeoExtension
 
 SilverStripe\SiteConfig\SiteConfig:
   extensions:
