@@ -6,6 +6,7 @@ use SilverStripe\ErrorPage\ErrorPage;
 use KubAT\PhpSimple\HtmlDomParser;
 use QuinnInteractive\Seo\Forms\GoogleSearchPreview;
 use QuinnInteractive\Seo\Forms\HealthAnalysisField;
+use DNADesign\Elemental\Extensions\ElementalPageExtension;
 use SilverStripe\Control\Controller;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Forms\TextField;
@@ -58,14 +59,18 @@ class PageHealthExtension extends DataExtension
     public function getRenderedHtml()
     {
         if (!$this->renderedHtml) {
-            $controllerName = $this->owner->getControllerName();
-            if ('SilverStripe\UserForms\Control\UserDefinedFormController' == $controllerName) {
-                // remove the Form since it crashes
-                $this->owner->Form = false;
+            if ($this->owner->hasExtension(ElementalPageExtension::class)) {
+                $this->renderedHtml = "<html><body>{$this->owner->getElementalContent()}</body></html>";
+            } else {
+                $controllerName = $this->owner->getControllerName();
+                if ('SilverStripe\UserForms\Control\UserDefinedFormController' == $controllerName) {
+                    // remove the Form since it crashes
+                    $this->owner->Form = false;
+                }
+                Requirements::clear(); // we only want the HTML, not any of the js or css
+                $this->renderedHtml = $controllerName::singleton()->render($this->owner);
+                Requirements::restore(); // put the js/css requirements back when we're done
             }
-            Requirements::clear(); // we only want the HTML, not any of the js or css
-            $this->renderedHtml = $controllerName::singleton()->render($this->owner);
-            Requirements::restore(); // put the js/css requirements back when we're done
         }
 
         if ($this->renderedHtml === false) {
